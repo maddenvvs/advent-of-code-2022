@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(dirname $0)"
+NIM_COMPILER_PATH="${HOME}/.nimble/bin/nim"
+
+function build_solution_dir() {
+    local day="$1"
+    printf "%s/Day%02d\n" "${SCRIPT_DIR}" "${day}"
+}
+
+function compile_solution() {
+    local day="$1"
+
+    local solution_dir="$(build_solution_dir "${day}")"
+    if [[ ! -d "${solution_dir}" ]] ; then
+        echo "Directory '${solution_dir}' doesn't exist" >&2
+        return 1
+    fi
+
+    "${NIM_COMPILER_PATH}" compile \
+        -d:release \
+        "${solution_dir}/solution.nim"
+}
+
+function execute_solution() {
+    local day="$1"
+
+    local solution_dir="$(build_solution_dir "${day}")"
+    if [[ ! -d "${solution_dir}" ]] ; then
+        echo "Directory '${solution_dir}' doesn't exist" >&2
+        return 1
+    fi
+
+    pushd "${solution_dir}" >/dev/null
+    "./solution"
+    popd >/dev/null
+}
+
+function clean_build_artifacts() {
+    local day="$1"
+
+    local solution_dir="$(build_solution_dir "${day}")"
+    if [[ ! -d "${solution_dir}" ]] ; then
+        echo "Directory '${solution_dir}' doesn't exist" >&2
+        return 1
+    fi
+
+    rm "${solution_dir}/solution"
+}
+
+ACTION="run"
+if [[ $# -gt 1 ]] ; then
+    ACTION="$1"
+fi
+
+case "${ACTION}" in
+    clean) clean_build_artifacts "$2" ;;
+    compile) compile_solution "$2" ;;
+    execute) execute_solution "$2" ;;
+    run) compile_solution "$2" && execute_solution "$2" ;;
+esac
