@@ -1,7 +1,10 @@
 import strutils
 
-proc readProblem(): seq[string] =
-    return readFile("input.txt").strip().splitLines()
+proc readInputFile(): string =
+    return readFile("input.txt").strip()
+
+func parseProblem(input: string): seq[string] =
+    return input.splitLines()
 
 iterator elfCalories(calories: seq[string]): int =
     var currentCalories: int = 0
@@ -16,13 +19,13 @@ iterator elfCalories(calories: seq[string]): int =
     if currentCalories > 0:
         yield currentCalories
 
-proc part1(calories: seq[string]): int =
+func part1(calories: seq[string]): int =
     var maxCalories = 0
     for elf in elfCalories(calories):
         maxCalories = max(maxCalories, elf)
     return maxCalories
 
-proc part2(calories: seq[string]): int =
+func part2(calories: seq[string]): int =
     var first = 0
     var second = 0
     var third = 0
@@ -41,7 +44,7 @@ proc part2(calories: seq[string]): int =
     return first + second + third
 
 proc main() =
-    let calories = readProblem()
+    let calories = parseProblem(readInputFile())
     echo "Part 1: ", part1(calories)
     echo "Part 2: ", part2(calories)
 
